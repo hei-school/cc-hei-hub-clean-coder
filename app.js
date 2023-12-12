@@ -108,19 +108,104 @@ app.post('/upload/word', async (req, res) => {
   }
 });
 
-app.get('/download/image', (req, res) => {
+app.get('/download/image', async (req, res) => {
   const filename = req.query.filename;
   if (!filename) {
     return res.status(400).send('Filename parameter is required');
   }
   const directory = path.join(__dirname, 'images');
-  const filePath = path.join(directory, filename);
 
-  res.download(filePath, (err) => {
-    if (err) {
-      res.status(404).send('File not found');
+  try {
+    const files = await fs.readdir(directory);
+    const matchingFile = files.find((file) =>
+      path.parse(file).name === filename
+    );
+
+    if (!matchingFile) {
+      return res.status(404).send('File not found');
     }
-  });
+
+    const filePath = path.join(directory, matchingFile);
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download/video', async (req, res) => {
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  const directory = path.join(__dirname, 'videos');
+
+  try {
+    const files = await fs.readdir(directory);
+    const matchingFile = files.find((file) =>
+      path.parse(file).name === filename
+    );
+
+    if (!matchingFile) {
+      return res.status(404).send('File not found');
+    }
+
+    const filePath = path.join(directory, matchingFile);
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download/pdf', async (req, res) => {
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  const directory = path.join(__dirname, 'pdf');
+
+  try {
+    const files = await fs.readdir(directory);
+    const matchingFile = files.find((file) =>
+      path.parse(file).name === filename
+    );
+
+    if (!matchingFile) {
+      return res.status(404).send('File not found');
+    }
+
+    const filePath = path.join(directory, matchingFile);
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download/word', async (req, res) => {
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  const directory = path.join(__dirname, 'word');
+
+  try {
+    const files = await fs.readdir(directory);
+    const matchingFile = files.find((file) =>
+      path.parse(file).name === filename
+    );
+
+    if (!matchingFile) {
+      return res.status(404).send('File not found');
+    }
+
+    const filePath = path.join(directory, matchingFile);
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.listen(port, () => {
