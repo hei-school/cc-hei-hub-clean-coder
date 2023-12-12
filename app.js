@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = 3000; 
 
-app.use(express.raw({limit: '10mb'}));
+app.use(express.raw({type:['image/*','video/*','application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],limit: '10mb'}));
 
 app.post('/upload/image', async (req, res) => {
   try {
@@ -106,6 +106,21 @@ app.post('/upload/word', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
+});
+
+app.get('/download/image', (req, res) => {
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  const directory = path.join(__dirname, 'images');
+  const filePath = path.join(directory, filename);
+
+  res.download(filePath, (err) => {
+    if (err) {
+      res.status(404).send('File not found');
+    }
+  });
 });
 
 app.listen(port, () => {
