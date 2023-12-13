@@ -1,6 +1,7 @@
 import express from 'express';
 import {fileURLToPath} from 'url';
 import path from 'path';
+
 import {handleUpload} from './services/uploadHandler.js'
 import {handleDownload} from './services/downloadHandler.js'
 import NotAuthorized from './exception/NotAuthorized.js';
@@ -9,7 +10,8 @@ import LockException from './exception/LockException.js'
 import SensitiveFile from './exception/SensitiveFile.js';
 import ServerDown from './exception/ServerDown.js';
 import ServerError from './exception/ServerError.js';
-
+import StockageInsuffisantCloud from './exception/StorageInsufficientCloud.js'; 
+import TooManyRequests from './exception/TooManyRequest.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,10 +23,56 @@ const wordDirectory = path.join(__dirname, 'word');
 const app = express();
 const port = 3000;
 
+app.use((req, _, next) => {
+  req.requestTimestamp = Date.now();
+  next();
+});
+
+
 app.use(express.raw({
   type: ['image/*', 'video/*', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/zip'],
   limit: '10mb'
 }));
+
+const isServerDown = async () => {
+  try {
+    const response = await fetch('http://localhost:' + port);
+    return !response.ok;
+  } catch (error) {
+    console.error('Error checking server status:', error);
+    return true;
+  }
+};
+
+const isCloudStorageFull = async () => {
+  try {
+    const cloudStorageInfo = await fetch('https://cloud-storage-api.com/info');
+    const cloudStorageData = await cloudStorageInfo.json();
+
+    const freeSpace = cloudStorageData.freeSpace;
+    const storageThreshold = 100 * 1024 * 1024; 
+    
+    return freeSpace < storageThreshold;
+  } catch (error) {
+    console.error('Error checking cloud storage status:', error);
+    return true;
+  }
+};
+
+const isTooManyRequests = async () => {
+  try {
+    const requestTrackingInfo = await fetch('https://request-tracking-api.com/info');
+    const requestTrackingData = await requestTrackingInfo.json();
+
+    const recentRequests = requestTrackingData.recentRequests;
+    const requestThreshold = 100; 
+
+    return recentRequests > requestThreshold;
+  } catch (error) {
+    console.error('Error checking recent requests:', error);
+    return true;
+  }
+};
 
 app.post('/upload/zip', async (req, res) => {
   try{
