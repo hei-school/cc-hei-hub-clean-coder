@@ -36,4 +36,11 @@ public class FileController {
     public String deleteFile(){
         return service.deleteFile();
     }
+
+    @GetMapping("/format-file")
+    public String getFormatFile(
+            @RequestPart("file") MultipartFile file
+    ){
+        return service.getFileFormat(file);
+    }
 }
