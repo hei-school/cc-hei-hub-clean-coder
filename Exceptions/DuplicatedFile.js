@@ -6,5 +6,5 @@ class DuplicatedFile extends Error {
     }
   }
   
-  module.exports = DuplicatedFile;
+export default DuplicatedFile;
   

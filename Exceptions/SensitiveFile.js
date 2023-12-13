@@ -6,5 +6,5 @@ class SensitiveFile extends Error {
     }
   }
   
-  module.exports = SensitiveFile;
+export default SensitiveFile;
   

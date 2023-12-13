@@ -6,5 +6,5 @@ class LockException extends Error {
     }
   }
   
-  module.exports = LockException;
+export default LockException;
   

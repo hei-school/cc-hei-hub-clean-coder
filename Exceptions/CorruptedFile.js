@@ -5,6 +5,6 @@ class CorruptedFile extends Error {
       this.statusCode = 500;
     }
   }
-  
-  module.exports = CorruptedFile;
+
+export default CorruptedFile;
   

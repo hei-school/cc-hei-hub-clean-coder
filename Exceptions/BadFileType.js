@@ -6,5 +6,5 @@ class BadFileType extends Error {
     }
   }
   
-  module.exports = BadFileType;
+export default BadFileType;
   

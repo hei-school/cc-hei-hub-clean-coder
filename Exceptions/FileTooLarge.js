@@ -6,5 +6,5 @@ class FileTooLarge extends Error {
     }
   }
   
-  module.exports = FileTooLarge;
+export default FileTooLarge;
   

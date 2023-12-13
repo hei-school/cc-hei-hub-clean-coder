@@ -6,5 +6,5 @@ class LegalReason extends Error {
     }
   }
   
-  module.exports = LegalReason;
+export default LegalReason;
   

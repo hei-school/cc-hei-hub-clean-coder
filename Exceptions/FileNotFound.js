@@ -6,5 +6,5 @@ class FileNotFound extends Error {
     }
   }
   
-  module.exports = FileNotFound;
+export default FileNotFound;
   

@@ -6,5 +6,5 @@ class NotAuthorized extends Error {
     }
   }
   
-  module.exports = NotAuthorized;
+export default NotAuthorized;
   

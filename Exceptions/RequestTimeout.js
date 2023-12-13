@@ -6,5 +6,5 @@ class RequestTimeout extends Error {
     }
   }
   
-  module.exports = RequestTimeout;
+export default RequestTimeout;
   

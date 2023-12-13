@@ -6,5 +6,5 @@ class TooManyRequests extends Error {
     }
   }
   
-  module.exports = TooManyRequests;
+export default TooManyRequests;
   

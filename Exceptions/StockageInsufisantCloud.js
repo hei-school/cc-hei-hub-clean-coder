@@ -6,5 +6,5 @@ class StockageInsuffisantCloud extends Error {
     }
   }
   
-  module.exports = StockageInsuffisantCloud;
+export default StockageInsuffisantCloud;
   

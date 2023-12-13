@@ -6,5 +6,5 @@ class FilenameInvalid extends Error {
     }
   }
   
-  module.exports = FilenameInvalid;
+export default FilenameInvalid;
   

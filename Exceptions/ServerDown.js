@@ -6,5 +6,5 @@ class ServerDown extends Error {
     }
   }
   
-  module.exports = ServerDown;
+export default ServerDown;
   
