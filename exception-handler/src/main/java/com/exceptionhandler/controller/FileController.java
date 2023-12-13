@@ -57,10 +57,16 @@ public class FileController {
     ) throws TimeoutException {
         return service.storeImage(file);
     }
-    
+
     @GetMapping("/files")
-    public Stream<Path> loadAllFile(){
-        return service.loadFile();
+    public Stream<Path> loadAllFile(
+            @RequestParam(value = "search", required = false) String searchQuery
+    ) {
+        Stream<Path> files = service.loadFile();
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            files = files.filter(path -> path.getFileName().toString().contains(searchQuery));
+        }
+        return files;
     }
 
      @GetMapping("/load-file")
