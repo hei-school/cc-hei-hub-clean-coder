@@ -21,15 +21,16 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public class FileService implements StorageFileInterface{
     private final Path rootLocation = Paths.get("uploads");
+
     @Override
     public String storeDocument(MultipartFile file) throws TimeoutException {
         try {
             if (file.isEmpty()) {
-                throw new FileNotFoundException("File should not be empty");
+                throw new FileNotFoundException("Le fichier ne doit pas être vide");
             } else {
                 String format = getFileFormat(file);
                 if (!format.equals("document")) {
-                    throw new BadFileTypeException("Only document files are allowed");
+                    throw new BadFileTypeException("Seuls les fichiers de document sont autorisés");
                 }
                 Path documentDirectory = this.rootLocation.resolve("document");
                 Path destinationFile = documentDirectory.resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename()))).normalize().toAbsolutePath();
@@ -37,10 +38,10 @@ public class FileService implements StorageFileInterface{
                     Files.createDirectories(documentDirectory);
                     Files.copy(inputStream, destinationFile);
                 }
-                return "Document stored successfully";
+                return "Document stocké avec succès";
             }
         } catch (ApiException | IOException e) {
-            throw new NotAuthorizedException("Bad format of file , must be a document file");
+            throw new NotAuthorizedException("Mauvais format de fichier, doit être un fichier de document");
         }
     }
 
@@ -48,11 +49,11 @@ public class FileService implements StorageFileInterface{
     public String storeVideo(MultipartFile file) throws TimeoutException {
         try {
             if (file.isEmpty()) {
-                throw new FileNotFoundException("File should not be empty");
+                throw new FileNotFoundException("Le fichier ne doit pas être vide");
             } else {
                 String format = getFileFormat(file);
                 if (!format.equals("video")) {
-                    throw new BadFileTypeException("Only video files are allowed");
+                    throw new BadFileTypeException("Seuls les fichiers vidéo sont autorisés");
                 }
                 Path videoDirectory = this.rootLocation.resolve("videos");
                 Path destinationFile = videoDirectory.resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename()))).normalize().toAbsolutePath();
@@ -60,10 +61,10 @@ public class FileService implements StorageFileInterface{
                     Files.createDirectories(videoDirectory);
                     Files.copy(inputStream, destinationFile);
                 }
-                return "Video stored successfully";
+                return "Vidéo stockée avec succès";
             }
         } catch (ApiException | IOException e) {
-            throw new NotAuthorizedException("Bad format of file , must be a video file");
+            throw new NotAuthorizedException("Mauvais format de fichier, doit être un fichier vidéo");
         }
     }
 
@@ -71,11 +72,11 @@ public class FileService implements StorageFileInterface{
     public String storeImage(MultipartFile file) throws TimeoutException {
         try {
             if (file.isEmpty()) {
-                throw new FileNotFoundException("File should not be empty");
+                throw new FileNotFoundException("Le fichier ne doit pas être vide");
             } else {
                 String format = getFileFormat(file);
                 if (!format.equals("image")) {
-                    throw new BadFileTypeException("Only image files are allowed");
+                    throw new BadFileTypeException("Seuls les fichiers image sont autorisés");
                 }
                 Path imgDirectory = this.rootLocation.resolve("img");
                 Path destinationFile = imgDirectory.resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename()))).normalize().toAbsolutePath();
@@ -83,10 +84,10 @@ public class FileService implements StorageFileInterface{
                     Files.createDirectories(imgDirectory);
                     Files.copy(inputStream, destinationFile);
                 }
-                return "Image stored successfully";
+                return "Image stockée avec succès";
             }
         } catch (ApiException | IOException e) {
-            throw new NotAuthorizedException("Bad format of file , must be a image file");
+            throw new NotAuthorizedException("Mauvais format de fichier, doit être un fichier image");
         }
     }
 
@@ -97,7 +98,7 @@ public class FileService implements StorageFileInterface{
                     .filter(path -> !path.equals(this.rootLocation))
                     .map(this.rootLocation::relativize);
         } catch (ApiException | IOException e) {
-            throw new FileNotFoundException("Failed to read stored files");
+            throw new FileNotFoundException("Impossible de lire les fichiers stockés");
         }
     }
 
@@ -122,10 +123,9 @@ public class FileService implements StorageFileInterface{
         } else if (contentType.startsWith("application/pdf") || contentType.startsWith("text")) {
             return "document";
         } else {
-            throw new NotAuthorizedException("bad format of file");
+            throw new NotAuthorizedException("Mauvais format de fichier");
         }
     }
-
 
     @Override
     public String getFileExtension(MultipartFile file) {
@@ -134,7 +134,7 @@ public class FileService implements StorageFileInterface{
         String extension = parts[parts.length - 1].toLowerCase();
 
         if (parts.length > 2) {
-            throw new BadFileTypeException("Invalid extension");
+            throw new BadFileTypeException("Extension invalide");
         }
 
         return extension;
