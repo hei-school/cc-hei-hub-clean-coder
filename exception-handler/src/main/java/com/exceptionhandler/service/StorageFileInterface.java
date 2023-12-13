@@ -8,7 +8,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 public interface StorageFileInterface {
-    String store(MultipartFile file) throws TimeoutException;
+    String storeDocument(MultipartFile file) throws TimeoutException;
+    String storeVideo(MultipartFile file) throws TimeoutException;
+    String storeImage(MultipartFile file) throws TimeoutException;
     Stream<Path> loadFile();
     String deleteFile();
     Path load(String filename);
