@@ -13,8 +13,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -103,8 +105,17 @@ public class FileService implements StorageFileInterface{
     }
 
     @Override
-    public String deleteFile() {
-        return null;
+    public String deleteFile(String searchQuery) {
+        try {
+            Stream<Path> files = loadFile();
+            List<Path> filesToDelete = files.filter(path -> path.getFileName().toString().contains(searchQuery)).collect(Collectors.toList());
+            for (Path file : filesToDelete) {
+                Files.deleteIfExists(file);
+            }
+            return "Fichiers supprimés avec succès";
+        } catch (IOException e) {
+            throw new FileNotFoundException("Impossible de supprimer les fichiers");
+        }
     }
 
     @Override

@@ -12,7 +12,7 @@ public interface StorageFileInterface {
     String storeVideo(MultipartFile file) throws TimeoutException;
     String storeImage(MultipartFile file) throws TimeoutException;
     Stream<Path> loadFile();
-    String deleteFile();
+    String deleteFile(String searchQuery);
     Path load(String filename);
     String getFileFormat(MultipartFile file);
     String getFileExtension(MultipartFile file);
