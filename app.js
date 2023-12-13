@@ -25,7 +25,7 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);

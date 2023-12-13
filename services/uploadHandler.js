@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import BadFileType from './exceptions/BadFileType.js';
 import CorruptedFile from './exceptions/CorruptedFile.js';
 import DuplicatedFile from './exceptions/DuplicatedFile.js';
+import FilenameInvalid from './exceptions/FilenameInvalid.js';
 
 export const handleUpload = async (file, directory) => {
   try {
@@ -23,6 +24,11 @@ export const handleUpload = async (file, directory) => {
     }
 
     const filename = `${Date.now()}.${type.ext}`;
+
+    if (!isValidFilename(filename)) {
+      throw new FilenameInvalid('Invalid characters in the filename');
+    }
+
     const filePath = path.join(directory, filename);
 
     const files = await fs.readdir(directory);
@@ -35,7 +41,7 @@ export const handleUpload = async (file, directory) => {
     await fs.writeFile(filePath, file);
     return filePath;
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid) {
       throw error;
     } else {
       console.error(error);
@@ -58,3 +64,9 @@ const isFileCorrupted = (file) => {
     return true;
   }
 };
+
+const isValidFilename = (filename) => {
+  const validFilenameRegex = /^[a-zA-Z0-9-_]+$/;
+  return validFilenameRegex.test(filename);
+};
+
