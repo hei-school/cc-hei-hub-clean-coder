@@ -1,22 +1,15 @@
 import express from 'express';
-import { fileURLToPath } from 'url';
+import {fileURLToPath} from 'url';
 import path from 'path';
-import fs from 'fs/promises';
-import { handleUpload, hasLegalReason, isNotAuthorized } from './services/uploadHandler.js';
-import { handleDownload } from './services/downloadHandler.js';
-import { isValidFilename } from './utils/utils.js';
-import BadFileType from './exception/BadFileType.js';
-import CorruptedFile from './exception/CorruptedFile.js';
-import DuplicatedFile from './exception/DuplicatedFile.js';
-import FilenameInvalid from './exception/FilenameInvalid.js';
-import FileNotFound from './exception/FileNotFound.js';
-import FileTooLarge from './exception/FileTooLarge.js';
-import LegalReason from './exception/LegalReason.js';
-import LockException from './exception/LockException.js';
-import NotAuthorized from './exception/NotAuthorized.js'; 
+import {handleUpload} from './services/uploadHandler.js'
+import {handleDownload} from './services/downloadHandler.js'
+import NotAuthorized from './exception/NotAuthorized.js';
 import NotImplemented from './exception/NotImplemented.js';
-import RequestTimeout from './exception/RequestTimeout.js';
+import LockException from './exception/LockException.js'
 import SensitiveFile from './exception/SensitiveFile.js';
+import ServerDown from './exception/ServerDown.js';
+import ServerError from './exception/ServerError.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,84 +22,206 @@ const app = express();
 const port = 3000;
 
 app.use(express.raw({
-  type: ['image/*', 'video/*', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  type: ['image/*', 'video/*', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/zip'],
   limit: '10mb'
 }));
 
-
-
-const handleExceptions = async (req, res, handlerFunction, directory) => {
-  try {
-    const file = req.body;
-
-    if (!isValidFilename(file.name)) {
-      throw new FilenameInvalid('Invalid filename');
+app.post('/upload/zip', async (req, res) => {
+  try{
+    const url = req.originalUrl;
+    if(url === '/upload/zip'){
+      throw new NotImplemented("This feature is implemented yet");
     }
-
-    if (hasLegalReason(file)) {
-      throw new LegalReason('File upload blocked for legal reasons');
-    }
-
-    if (isNotAuthorized(file)) {
-      throw new NotAuthorized('Not authorized to upload this file');
-    }
-
-    if (isNotImplemented(file)) {
-      throw new NotImplemented('Not implemented for this file');
-    }
-
-    if (isRequestTimeout(file)) {
-      throw new RequestTimeout('Request timeout');
-    }
-
-    if (isSensitiveFile(file)) {
-      throw new SensitiveFile('Sensitive file upload is not allowed');
-    }
-
-    const filePath = await handlerFunction(file, directory);
-    res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout || error instanceof SensitiveFile) {
-      res.status(error.statusCode).json({ message: error.message });
+    if (error instanceof NotImplemented) {
+      throw error;
     } else {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
+      throw new Error('Internal server error');
     }
   }
-};
+});
 
+app.get('/download/zip', async (req, res) => {
+  try{
+    const url = req.originalUrl;
+    if(url === '/download/zip'){
+      throw new LockException("This feature is not locked for now");
+    }
+  } catch (error) {
+    if (error instanceof LockException) {
+      throw error;
+    } else {
+      console.error(error);
+      throw new Error('Internal server error');
+    }
+  }
+});
+
+app.get('/download/all', async (req, res) => {
+  try{
+    const url = req.originalUrl;
+    if(url === '/download/all'){
+      throw new NotAuthorized("Request unauthorized");
+    }
+  } catch (error) {
+    if (error instanceof NotAuthorized) {
+      throw error;
+    } else {
+      console.error(error);
+      throw new Error('Internal server error');
+    }
+  }
+});
 
 app.post('/upload/image', async (req, res) => {
-  await handleExceptions(req, res, handleUpload, imageDirectory);
+  try {
+    const image = req.body;
+    const filePath = await handleUpload(image,imageDirectory);
+    res.status(200).json({ message: 'Image uploaded successfully', filePath });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 app.post('/upload/video', async (req, res) => {
-  await handleExceptions(req, res, handleUpload, videoDirectory);
+  try {
+    const video = req.body;
+    const filePath = await handleUpload(video,videoDirectory);
+    res.status(200).json({ message: 'Video uploaded successfully', filePath });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 app.post('/upload/pdf', async (req, res) => {
-  await handleExceptions(req, res, handleUpload, pdfDirectory);
+  try {
+    const pdf = req.body;
+    const filePath = await handleUpload(pdf,pdfDirectory);
+    res.status(200).json({ message: 'Pdf uploaded successfully', filePath });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 app.post('/upload/word', async (req, res) => {
-  await handleExceptions(req, res, handleUpload, wordDirectory);
+  try {
+    const word = req.body;
+    const filePath = await handleUpload(word,wordDirectory);
+    res.status(200).json({ message: 'Word uploaded successfully', filePath });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 app.get('/download/image', async (req, res) => {
-  await handleExceptions(req, res, handleDownload, imageDirectory);
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  try {
+    const filePath = await handleDownload(filename,imageDirectory)
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download/image?filename=1', async (req, res) => {
+  try{
+    const url = req.originalUrl;
+    if(url === '/download/image?filename=1'){
+      throw new SensitiveFile("You are not allowed to download this file");
+    }
+  } catch (error) {
+    if (error instanceof SensitiveFile) {
+      throw error;
+    } else {
+      console.error(error);
+      throw new Error('Internal server error');
+    }
+  }
+});
+
+app.get('/download/image?filename=2', async (req, res) => {
+  try{
+    const url = req.originalUrl;
+    if(url === '/download/image?filename=2'){
+      throw new ServerDown("The server is down");
+    }
+  } catch (error) {
+    if (error instanceof ServerDown) {
+      throw error;
+    } else {
+      console.error(error);
+      throw new Error('Internal server error');
+    }
+  }
+});
+
+app.get('/download/image?filename=3', async (req, res) => {
+  try{
+    const url = req.originalUrl;
+    if(url === '/download/image?filename=3'){
+      throw new ServerError("Could check the filename in the database");
+    }
+  } catch (error) {
+    if (error instanceof ServerError) {
+      throw error;
+    } else {
+      console.error(error);
+      throw new Error('Internal server error');
+    }
+  }
 });
 
 app.get('/download/video', async (req, res) => {
-  await handleExceptions(req, res, handleDownload, videoDirectory);
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  try {
+    const filePath = await handleDownload(filename,videoDirectory);
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/download/pdf', async (req, res) => {
-  await handleExceptions(req, res, handleDownload, pdfDirectory);
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  try {
+    const filePath = await handleDownload(filename,pdfDirectory);
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/download/word', async (req, res) => {
-  await handleExceptions(req, res, handleDownload, wordDirectory);
+  const filename = req.query.filename;
+  if (!filename) {
+    return res.status(400).send('Filename parameter is required');
+  }
+  try {
+    const filePath = await handleDownload(filename,wordDirectory)
+    res.download(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

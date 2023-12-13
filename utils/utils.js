@@ -1,4 +1,4 @@
 export const isValidFilename = (filename) => {
-    const validFilenameRegex = /^[a-zA-Z0-9-_]+$/;
+    const validFilenameRegex = /^[0-9]*$/;
     return validFilenameRegex.test(filename);
   };
