@@ -102,4 +102,12 @@ const isRequestTimeout = (file, timeoutThreshold = 300000) => {
   return currentTime - fileTimestamp > timeoutThreshold;
 };
 
-export { isFileCorrupted, hasLegalReason, isFileLocked, isNotAuthorized, isNotImplemented, isRequestTimeout };
+const isSensitiveFile = (file) => {
+  const fileContent = file.toString('utf-8');
+  const sensitiveThreshold = 100; 
+
+  return fileContent.length > sensitiveThreshold;
+};
+
+
+export { isFileCorrupted, hasLegalReason, isFileLocked, isNotAuthorized, isNotImplemented, isRequestTimeout, isSensitiveFile };

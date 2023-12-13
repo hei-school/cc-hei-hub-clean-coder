@@ -15,6 +15,8 @@ import LegalReason from './exception/LegalReason.js';
 import LockException from './exception/LockException.js';
 import NotAuthorized from './exception/NotAuthorized.js'; 
 import NotImplemented from './exception/NotImplemented.js';
+import RequestTimeout from './exception/RequestTimeout.js';
+import SensitiveFile from './exception/SensitiveFile.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +32,7 @@ app.use(express.raw({
   type: ['image/*', 'video/*', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   limit: '10mb'
 }));
+
 
 
 const handleExceptions = async (req, res, handlerFunction, directory) => {
@@ -56,10 +59,14 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
       throw new RequestTimeout('Request timeout');
     }
 
+    if (isSensitiveFile(file)) {
+      throw new SensitiveFile('Sensitive file upload is not allowed');
+    }
+
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout || error instanceof SensitiveFile) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);
