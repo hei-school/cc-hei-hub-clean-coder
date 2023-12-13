@@ -10,6 +10,7 @@ import DuplicatedFile from './exception/DuplicatedFile.js';
 import FilenameInvalid from './exception/FilenameInvalid.js';
 import FileNotFound from './exception/FileNotFound.js';
 import FileTooLarge from './exception/FileTooLarge.js';
+import LegalReason from './exception/LegalReason.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,10 @@ const imageDirectory = path.join(__dirname, 'images');
 const videoDirectory = path.join(__dirname, 'videos');
 const pdfDirectory = path.join(__dirname, 'pdf');
 const wordDirectory = path.join(__dirname, 'word');
+
+const hasLegalReason = (file) => {
+  return file.name.toLowerCase().includes('illegal');
+};
 
 const app = express();
 const port = 3000;
@@ -29,15 +34,19 @@ app.use(express.raw({
 const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
     const file = req.body;
-    
+
     if (!isValidFilename(file.name)) {
       throw new FilenameInvalid('Invalid filename');
+    }
+
+    if (hasLegalReason(file)) {
+      throw new LegalReason('File upload blocked for legal reasons');
     }
 
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);
@@ -45,6 +54,7 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     }
   }
 };
+
 
 const isFileCorrupted = (file) => {
   try {

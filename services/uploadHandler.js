@@ -8,6 +8,7 @@ import CorruptedFile from '../exception/CorruptedFile.js';
 import DuplicatedFile from '../exception/DuplicatedFile.js';
 import FilenameInvalid from '../exception/FilenameInvalid.js';
 import FileTooLarge from '../exception/FileTooLarge.js';
+import LegalReason from '../exception/LegalReason.js';
 
 export const handleUpload = async (file, directory) => {
   try {
@@ -40,10 +41,14 @@ export const handleUpload = async (file, directory) => {
       throw new DuplicatedFile('File with the same name already exists');
     }
 
+    if (hasLegalReason(file)) {
+      throw new LegalReason('File upload blocked for legal reasons');
+    }
+
     await fs.writeFile(filePath, file);
     return filePath;
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge || error instanceof LegalReason) {
       throw error;
     } else {
       console.error(error);
@@ -65,4 +70,8 @@ const isFileCorrupted = (file) => {
     console.error('Error during file corruption check:', error);
     return true;
   }
+};
+
+const hasLegalReason = (file) => {
+  return file.name.toLowerCase().includes('illegal');
 };
