@@ -1,34 +1,26 @@
 import express from 'express';
-import fs from 'fs/promises';
 import {fileURLToPath} from 'url';
 import path from 'path';
-import { fileTypeFromBuffer } from 'file-type/core';
+import {handleUpload} from './services/uploadHandler.js'
+import {handleDownload} from './services/downloadHandler.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const imageDirectory = path.join(__dirname, 'images');
+const videoDirectory = path.join(__dirname, 'videos');
+const pdfDirectory = path.join(__dirname, 'pdf');
+const wordDirectory = path.join(__dirname, 'word');
 
 const app = express();
 const port = 3000; 
 
 app.use(express.raw({type:['image/*','video/*','application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],limit: '10mb'}));
 
+
 app.post('/upload/image', async (req, res) => {
   try {
     const image = req.body;
-    const type = await fileTypeFromBuffer(image);
-
-    if (!type || !type.mime.startsWith("image/")) {
-      throw new Error('Invalid image file');
-    }
-
-    if (req.body.length > 10 * 1024 * 1024) {
-      throw new Error('Image size exceeds 10MB');
-    }
-
-    const directory = path.join(__dirname, 'images');
-    const filename = `${Date.now()}.png`;
-    const filePath = path.join(directory, filename);
-    await fs.writeFile(filePath, image);
+    const filePath = await handleUpload(image,imageDirectory);
     res.status(200).json({ message: 'Image uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -39,20 +31,7 @@ app.post('/upload/image', async (req, res) => {
 app.post('/upload/video', async (req, res) => {
   try {
     const video = req.body;
-    const type = await fileTypeFromBuffer(video);
-
-    if (!type || !type.mime.startsWith("video/")) {
-      throw new Error('Invalid video file');
-    }
-
-    if (req.body.length > 10 * 1024 * 1024) {
-      throw new Error('Image size exceeds 10MB');
-    }
-    
-    const directory = path.join(__dirname, 'videos');
-    const filename = `${Date.now()}.mp4`;
-    const filePath = path.join(directory, filename);
-    await fs.writeFile(filePath, video);
+    const filePath = await handleUpload(video,videoDirectory);
     res.status(200).json({ message: 'Video uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -63,20 +42,7 @@ app.post('/upload/video', async (req, res) => {
 app.post('/upload/pdf', async (req, res) => {
   try {
     const pdf = req.body;
-    const type = await fileTypeFromBuffer(pdf);
-
-    if (!type || type.mime != "application/pdf") {
-      throw new Error('Invalid pdf file');
-    }
-
-    if (req.body.length > 10 * 1024 * 1024) {
-      throw new Error('Image size exceeds 10MB');
-    }
-    
-    const directory = path.join(__dirname, 'pdf');
-    const filename = `${Date.now()}.pdf`;
-    const filePath = path.join(directory, filename);
-    await fs.writeFile(filePath, pdf);
+    const filePath = await handleUpload(pdf,pdfDirectory);
     res.status(200).json({ message: 'Pdf uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -87,20 +53,7 @@ app.post('/upload/pdf', async (req, res) => {
 app.post('/upload/word', async (req, res) => {
   try {
     const word = req.body;
-    const type = await fileTypeFromBuffer(word);
-
-    if (!type || type.mime != "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      throw new Error('Invalid word file');
-    }
-
-    if (req.body.length > 10 * 1024 * 1024) {
-      throw new Error('Image size exceeds 10MB');
-    }
-    
-    const directory = path.join(__dirname, 'word');
-    const filename = `${Date.now()}.docx`;
-    const filePath = path.join(directory, filename);
-    await fs.writeFile(filePath, word);
+    const filePath = await handleUpload(word,wordDirectory);
     res.status(200).json({ message: 'Word uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -113,19 +66,8 @@ app.get('/download/image', async (req, res) => {
   if (!filename) {
     return res.status(400).send('Filename parameter is required');
   }
-  const directory = path.join(__dirname, 'images');
-
   try {
-    const files = await fs.readdir(directory);
-    const matchingFile = files.find((file) =>
-      path.parse(file).name === filename
-    );
-
-    if (!matchingFile) {
-      return res.status(404).send('File not found');
-    }
-
-    const filePath = path.join(directory, matchingFile);
+    const filePath = await handleDownload(filename,imageDirectory)
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -138,19 +80,8 @@ app.get('/download/video', async (req, res) => {
   if (!filename) {
     return res.status(400).send('Filename parameter is required');
   }
-  const directory = path.join(__dirname, 'videos');
-
   try {
-    const files = await fs.readdir(directory);
-    const matchingFile = files.find((file) =>
-      path.parse(file).name === filename
-    );
-
-    if (!matchingFile) {
-      return res.status(404).send('File not found');
-    }
-
-    const filePath = path.join(directory, matchingFile);
+    const filePath = await handleDownload(filename,videoDirectory);
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -163,19 +94,8 @@ app.get('/download/pdf', async (req, res) => {
   if (!filename) {
     return res.status(400).send('Filename parameter is required');
   }
-  const directory = path.join(__dirname, 'pdf');
-
   try {
-    const files = await fs.readdir(directory);
-    const matchingFile = files.find((file) =>
-      path.parse(file).name === filename
-    );
-
-    if (!matchingFile) {
-      return res.status(404).send('File not found');
-    }
-
-    const filePath = path.join(directory, matchingFile);
+    const filePath = await handleDownload(filename,pdfDirectory);
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -188,19 +108,8 @@ app.get('/download/word', async (req, res) => {
   if (!filename) {
     return res.status(400).send('Filename parameter is required');
   }
-  const directory = path.join(__dirname, 'word');
-
   try {
-    const files = await fs.readdir(directory);
-    const matchingFile = files.find((file) =>
-      path.parse(file).name === filename
-    );
-
-    if (!matchingFile) {
-      return res.status(404).send('File not found');
-    }
-
-    const filePath = path.join(directory, matchingFile);
+    const filePath = await handleDownload(filename,wordDirectory)
     res.download(filePath);
   } catch (err) {
     console.error(err);
