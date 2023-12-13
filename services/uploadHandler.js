@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs/promises';
 
 import BadFileType from './exceptions/BadFileType.js';
+import CorruptedFile from './exceptions/CorruptedFile.js';
 
 export const handleUpload = async (file, directory) => {
   try {
@@ -16,16 +17,35 @@ export const handleUpload = async (file, directory) => {
       throw new BadFileType('Invalid file extension');
     }
 
+    if (isFileCorrupted(file)) {
+      throw new CorruptedFile('Corrupted file detected');
+    }
+
     const filename = `${Date.now()}.${type.ext}`;
     const filePath = path.join(directory, filename);
     await fs.writeFile(filePath, file);
     return filePath;
   } catch (error) {
-    if (error instanceof BadFileType) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile) {
       throw error; 
     } else {
       console.error(error);
       throw new Error('Internal server error');
     }
+  }
+};
+
+const isFileCorrupted = (file) => {
+  try {
+    const fileText = file.toString('utf-8');
+
+    if (fileText.includes('CorruptedString')) {
+      return true; 
+    }
+
+    return false;
+  } catch (error) {
+    console.error('Error during file corruption check:', error);
+    return true; 
   }
 };

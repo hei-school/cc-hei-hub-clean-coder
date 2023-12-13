@@ -1,8 +1,8 @@
 import express from 'express';
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 import path from 'path';
-import {handleUpload} from './services/uploadHandler.js'
-import {handleDownload} from './services/downloadHandler.js'
+import { handleUpload } from './services/uploadHandler.js';
+import { handleDownload } from './services/downloadHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,57 +12,42 @@ const pdfDirectory = path.join(__dirname, 'pdf');
 const wordDirectory = path.join(__dirname, 'word');
 
 const app = express();
-const port = 3000; 
+const port = 3000;
 
-app.use(express.raw({type:['image/*','video/*','application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],limit: '10mb'}));
+app.use(express.raw({
+  type: ['image/*', 'video/*', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  limit: '10mb'
+}));
 
-
-app.post('/upload/image', async (req, res) => {
+const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
-    const image = req.body;
-    const filePath = await handleUpload(image, imageDirectory);
-    res.status(200).json({ message: 'Image uploaded successfully', filePath });
+    const file = req.body;
+    const filePath = await handlerFunction(file, directory);
+    res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });
     }
   }
+};
+
+app.post('/upload/image', async (req, res) => {
+  await handleExceptions(req, res, handleUpload, imageDirectory);
 });
 
 app.post('/upload/video', async (req, res) => {
-  try {
-    const video = req.body;
-    const filePath = await handleUpload(video,videoDirectory);
-    res.status(200).json({ message: 'Video uploaded successfully', filePath });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  await handleExceptions(req, res, handleUpload, videoDirectory);
 });
 
 app.post('/upload/pdf', async (req, res) => {
-  try {
-    const pdf = req.body;
-    const filePath = await handleUpload(pdf,pdfDirectory);
-    res.status(200).json({ message: 'Pdf uploaded successfully', filePath });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  await handleExceptions(req, res, handleUpload, pdfDirectory);
 });
 
 app.post('/upload/word', async (req, res) => {
-  try {
-    const word = req.body;
-    const filePath = await handleUpload(word,wordDirectory);
-    res.status(200).json({ message: 'Word uploaded successfully', filePath });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  await handleExceptions(req, res, handleUpload, wordDirectory);
 });
 
 app.get('/download/image', async (req, res) => {
@@ -71,7 +56,7 @@ app.get('/download/image', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
-    const filePath = await handleDownload(filename,imageDirectory)
+    const filePath = await handleDownload(filename, imageDirectory);
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -85,7 +70,7 @@ app.get('/download/video', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
-    const filePath = await handleDownload(filename,videoDirectory);
+    const filePath = await handleDownload(filename, videoDirectory);
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -99,7 +84,7 @@ app.get('/download/pdf', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
-    const filePath = await handleDownload(filename,pdfDirectory);
+    const filePath = await handleDownload(filename, pdfDirectory);
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -113,7 +98,7 @@ app.get('/download/word', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
-    const filePath = await handleDownload(filename,wordDirectory)
+    const filePath = await handleDownload(filename, wordDirectory);
     res.download(filePath);
   } catch (err) {
     console.error(err);
