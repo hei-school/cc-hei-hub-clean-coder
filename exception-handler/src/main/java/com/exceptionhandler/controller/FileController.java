@@ -20,6 +20,14 @@ public class FileController {
         return service.storeDocument(file);
     }
 
+        @PostMapping("/upload-video")
+    public String storeVideo(
+            @RequestPart("file") MultipartFile file
+    ) throws TimeoutException {
+        return service.storeVideo(file);
+    }
+
+
     @GetMapping("/files")
     public Stream<Path> loadAllFile(){
         return service.loadFile();
