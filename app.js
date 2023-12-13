@@ -9,6 +9,7 @@ import CorruptedFile from './exception/CorruptedFile.js';
 import DuplicatedFile from './exception/DuplicatedFile.js';
 import FilenameInvalid from './exception/FilenameInvalid.js';
 import FileNotFound from './exception/FileNotFound.js';
+import FileTooLarge from './exception/FileTooLarge.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,14 +26,10 @@ app.use(express.raw({
   limit: '10mb'
 }));
 
-const isValidFilename = (filename) => {
-  return true;
-};
-
 const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
     const file = req.body;
-
+    
     if (!isValidFilename(file.name)) {
       throw new FilenameInvalid('Invalid filename');
     }
@@ -40,7 +37,7 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);

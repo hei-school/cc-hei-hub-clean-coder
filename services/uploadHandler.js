@@ -7,13 +7,14 @@ import BadFileType from '../exception/BadFileType.js';
 import CorruptedFile from '../exception/CorruptedFile.js';
 import DuplicatedFile from '../exception/DuplicatedFile.js';
 import FilenameInvalid from '../exception/FilenameInvalid.js';
+import FileTooLarge from '../exception/FileTooLarge.js';
 
 export const handleUpload = async (file, directory) => {
   try {
     const type = await fileTypeFromBuffer(file);
 
     if (file.length > 10 * 1024 * 1024) {
-      throw new Error('File size exceeds 10MB');
+      throw new FileTooLarge('File size exceeds 10MB');
     }
 
     if (!type || (!type.mime.startsWith("video/") && !type.mime.startsWith("image/") && type.mime !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" && type.mime !== "application/pdf")) {
@@ -42,7 +43,7 @@ export const handleUpload = async (file, directory) => {
     await fs.writeFile(filePath, file);
     return filePath;
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge) {
       throw error;
     } else {
       console.error(error);
@@ -65,6 +66,3 @@ const isFileCorrupted = (file) => {
     return true;
   }
 };
-
-
-
