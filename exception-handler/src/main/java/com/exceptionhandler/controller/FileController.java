@@ -44,23 +44,5 @@ public class FileController {
             @RequestPart("file") String file
     ) throws TimeoutException {
         return service.load(file);
-    }
-
-    @DeleteMapping("/delete-file")
-    public String deleteFile(){
-        return service.deleteFile();
-    }
-
-    @GetMapping("/format-file")
-    public String getFormatFile(
-            @RequestPart("file") MultipartFile file
-    ){
-        return service.getFileFormat(file);
-    }
-
-    @GetMapping("/file-extension")
-    public String getFormatFile(
-            @RequestPart("file") MultipartFile file
-    ){
-        return service.getFileExtension(file);
+    } 
 }
