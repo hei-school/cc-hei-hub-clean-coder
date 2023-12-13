@@ -7,7 +7,7 @@ This is a simple Node.js application using the Express framework to handle file 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/file-upload-download-app.git
+   git clone https://github.com/hei-school/cc-hei-hub-clean-coder.git
    cd file-upload-download-app
    ```
 
