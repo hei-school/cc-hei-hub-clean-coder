@@ -43,7 +43,13 @@ public class FileService implements StorageFileInterface{
 
     @Override
     public Stream<Path> loadFile() {
-        return null;
+        try {
+            return Files.walk(this.rootLocation, 1)
+                    .filter(path -> !path.equals(this.rootLocation))
+                    .map(this.rootLocation::relativize);
+        } catch (IOException e) {
+            throw new FileNotFoundException("Failed to read stored files");
+        }
     }
 
     @Override
@@ -53,7 +59,7 @@ public class FileService implements StorageFileInterface{
 
     @Override
     public Path load(String filename) {
-        return null;
+        return this.rootLocation.resolve(filename);
     }
 
     @Override
