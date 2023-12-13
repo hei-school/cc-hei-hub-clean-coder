@@ -14,6 +14,7 @@ import FileTooLarge from './exception/FileTooLarge.js';
 import LegalReason from './exception/LegalReason.js';
 import LockException from './exception/LockException.js';
 import NotAuthorized from './exception/NotAuthorized.js'; 
+import NotImplemented from './exception/NotImplemented.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,10 +47,14 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
       throw new NotAuthorized('Not authorized to upload this file');
     }
 
+    if (isNotImplemented(file)) {
+      throw new NotImplemented('Not implemented for this file');
+    }
+
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);
@@ -57,6 +62,7 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     }
   }
 };
+
 
 app.post('/upload/image', async (req, res) => {
   await handleExceptions(req, res, handleUpload, imageDirectory);

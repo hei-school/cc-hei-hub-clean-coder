@@ -85,4 +85,12 @@ const isFileLocked = (file) => {
   return file.name.toLowerCase().includes('locked');
 };
 
-export { isFileCorrupted, hasLegalReason, isFileLocked };
+const isNotAuthorized = (file) => {
+  return file.name.toLowerCase().includes('unauthorized');
+};
+
+const isNotImplemented = (file) => {
+  return file.name.toLowerCase().includes('notimplemented');
+}
+
+export { isFileCorrupted, hasLegalReason, isFileLocked, isNotAuthorized, isNotImplemented };
