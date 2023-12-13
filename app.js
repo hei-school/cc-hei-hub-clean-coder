@@ -2,6 +2,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
+import fetch from 'node-fetch';
 import { handleUpload, hasLegalReason, isNotAuthorized } from './services/uploadHandler.js';
 import { handleDownload } from './services/downloadHandler.js';
 import { isValidFilename } from './utils/utils.js';
@@ -13,10 +14,12 @@ import FileNotFound from './exception/FileNotFound.js';
 import FileTooLarge from './exception/FileTooLarge.js';
 import LegalReason from './exception/LegalReason.js';
 import LockException from './exception/LockException.js';
-import NotAuthorized from './exception/NotAuthorized.js'; 
+import NotAuthorized from './exception/NotAuthorized.js';
 import NotImplemented from './exception/NotImplemented.js';
 import RequestTimeout from './exception/RequestTimeout.js';
 import SensitiveFile from './exception/SensitiveFile.js';
+import ServerDown from './exception/ServerDown.js';
+import ServerError from './exception/ServerError.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,10 +36,22 @@ app.use(express.raw({
   limit: '10mb'
 }));
 
-
+const isServerDown = async () => {
+  try {
+    const response = await fetch('http://localhost:' + port);
+    return !response.ok;
+  } catch (error) {
+    console.error('Error checking server status:', error);
+    return true;
+  }
+};
 
 const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
+    if (await isServerDown()) {
+      throw new ServerDown('The server is currently down');
+    }
+
     const file = req.body;
 
     if (!isValidFilename(file.name)) {
@@ -66,11 +81,12 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout || error instanceof SensitiveFile) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout || error instanceof SensitiveFile || error instanceof ServerDown) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });
+      throw new ServerError('Internal server error');
     }
   }
 };
