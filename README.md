@@ -33,26 +33,27 @@ This project is a Java application based on Spring Boot, which uses the Spring M
 
 2. Perform a POST request to one of the following endpoints based on the file type you want to upload:
 
-   - Image: `http://localhost:3000/upload/image`
-   - Video: `http://localhost:3000/upload/video`
-   - PDF: `http://localhost:3000/upload/pdf`
-   - Word: `http://localhost:3000/upload/word`
+   - Image: `http://localhost:8080/upload-image`
+   - Video: `http://localhost:8080/upload-video`
+   - Document : `http://localhost:8080/upload-document`
 
-3. Set the request body to raw and select the file to upload. Ensure that the file type matches the endpoint you are using.
-
-4. Execute the request.
+3. Execute the request.
 
 ### Downloading Files
 
-1. Perform a GET request to one of the following endpoints based on the file type you want to download:
+1. Perform a GET request to one of the following endpoints to download:
 
-   - Image: `http://localhost:3000/download/image?filename=yourfilename`
-   - Video: `http://localhost:3000/download/video?filename=yourfilename`
-   - PDF: `http://localhost:3000/download/pdf?filename=yourfilename`
-   - Word: `http://localhost:3000/download/word?filename=yourfilename`
+   - One file : `http://localhost:8080/load-file`
+   - All files: `http://localhost:8080/files`
 
-   Replace `yourfilename` with the actual name of the file you want to download.
+2. Execute the request.
 
+### Deleting Files
+
+1. Perform a DELETE request to delete file :
+
+   - http://localhost:8080/delete-file
+  
 2. Execute the request.
 
 ## Testing
