@@ -19,7 +19,9 @@ import NotImplemented from './exception/NotImplemented.js';
 import RequestTimeout from './exception/RequestTimeout.js';
 import SensitiveFile from './exception/SensitiveFile.js';
 import ServerDown from './exception/ServerDown.js';
-import ServerError from './exception/ServerError.js'; 
+import ServerError from './exception/ServerError.js';
+import StockageInsuffisantCloud from './exception/StockageInsuffisantCloud.js'; // Ajout de la nouvelle exception
+import TooManyRequests from './exception/TooManyRequests.js'; // Ajout de la nouvelle exception
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,10 +48,49 @@ const isServerDown = async () => {
   }
 };
 
+const isCloudStorageFull = async () => {
+  try {
+    const cloudStorageInfo = await fetch('https://cloud-storage-api.com/info');
+    const cloudStorageData = await cloudStorageInfo.json();
+
+    const freeSpace = cloudStorageData.freeSpace;
+    const storageThreshold = 100 * 1024 * 1024; 
+    
+    return freeSpace < storageThreshold;
+  } catch (error) {
+    console.error('Error checking cloud storage status:', error);
+    return true;
+  }
+};
+
+const isTooManyRequests = async () => {
+  try {
+    const requestTrackingInfo = await fetch('https://request-tracking-api.com/info');
+    const requestTrackingData = await requestTrackingInfo.json();
+
+    const recentRequests = requestTrackingData.recentRequests;
+    const requestThreshold = 100; 
+    
+    return recentRequests > requestThreshold;
+  } catch (error) {
+    console.error('Error checking recent requests:', error);
+    return true;
+  }
+};
+
 const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
     if (await isServerDown()) {
       throw new ServerDown('The server is currently down');
+    }
+
+    // Ajout de vérifications pour les nouvelles exceptions
+    if (await isCloudStorageFull()) {
+      throw new StockageInsuffisantCloud('Cloud storage is full');
+    }
+
+    if (await isTooManyRequests()) {
+      throw new TooManyRequests('Too many requests');
     }
 
     const file = req.body;
@@ -81,7 +122,7 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout || error instanceof SensitiveFile || error instanceof ServerDown) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout || error instanceof SensitiveFile || error instanceof ServerDown || error instanceof StockageInsuffisantCloud || error instanceof TooManyRequests) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);
