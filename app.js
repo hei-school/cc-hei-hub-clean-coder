@@ -10,8 +10,7 @@ import LockException from './exception/LockException.js'
 import SensitiveFile from './exception/SensitiveFile.js';
 import ServerDown from './exception/ServerDown.js';
 import ServerError from './exception/ServerError.js';
-import StockageInsuffisantCloud from './exception/StorageInsufficientCloud.js'; 
-import TooManyRequests from './exception/TooManyRequest.js'; 
+import RequestTimeout from './exception/RequestTimeout.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,7 +124,12 @@ app.get('/download/all', async (req, res) => {
 app.post('/upload/image', async (req, res) => {
   try {
     const image = req.body;
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleUpload(image,imageDirectory);
+    clearTimeout(timeOut)
     res.status(200).json({ message: 'Image uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -136,7 +140,12 @@ app.post('/upload/image', async (req, res) => {
 app.post('/upload/video', async (req, res) => {
   try {
     const video = req.body;
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleUpload(video,videoDirectory);
+    clearTimeout(timeOut)
     res.status(200).json({ message: 'Video uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -147,7 +156,12 @@ app.post('/upload/video', async (req, res) => {
 app.post('/upload/pdf', async (req, res) => {
   try {
     const pdf = req.body;
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleUpload(pdf,pdfDirectory);
+    clearTimeout(timeOut)
     res.status(200).json({ message: 'Pdf uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -158,7 +172,12 @@ app.post('/upload/pdf', async (req, res) => {
 app.post('/upload/word', async (req, res) => {
   try {
     const word = req.body;
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleUpload(word,wordDirectory);
+    clearTimeout(timeOut)
     res.status(200).json({ message: 'Word uploaded successfully', filePath });
   } catch (error) {
     console.error(error);
@@ -172,7 +191,12 @@ app.get('/download/image', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleDownload(filename,imageDirectory)
+    clearTimeout(timeOut)
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -180,7 +204,7 @@ app.get('/download/image', async (req, res) => {
   }
 });
 
-app.get('/download/image?filename=1', async (req, res) => {
+app.get('/download/text', async (req, res) => {
   try{
     const url = req.originalUrl;
     if(url === '/download/image?filename=1'){
@@ -196,7 +220,7 @@ app.get('/download/image?filename=1', async (req, res) => {
   }
 });
 
-app.get('/download/image?filename=2', async (req, res) => {
+app.get('/download/texto', async (req, res) => {
   try{
     const url = req.originalUrl;
     if(url === '/download/image?filename=2'){
@@ -212,7 +236,7 @@ app.get('/download/image?filename=2', async (req, res) => {
   }
 });
 
-app.get('/download/image?filename=3', async (req, res) => {
+app.get('/download/test', async (req, res) => {
   try{
     const url = req.originalUrl;
     if(url === '/download/image?filename=3'){
@@ -234,7 +258,12 @@ app.get('/download/video', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleDownload(filename,videoDirectory);
+    clearTimeout(timeOut)
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -248,7 +277,12 @@ app.get('/download/pdf', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
     const filePath = await handleDownload(filename,pdfDirectory);
+    clearTimeout(timeOut)
     res.download(filePath);
   } catch (err) {
     console.error(err);
@@ -262,7 +296,12 @@ app.get('/download/word', async (req, res) => {
     return res.status(400).send('Filename parameter is required');
   }
   try {
-    const filePath = await handleDownload(filename,wordDirectory)
+    const time = 10000;
+    const timeOut = setTimeout(() => {
+      throw new RequestTimeout("Request timed out")
+    }, time)
+    const filePath = await handleDownload(filename,wordDirectory);
+    clearTimeout(timeOut)
     res.download(filePath);
   } catch (err) {
     console.error(err);

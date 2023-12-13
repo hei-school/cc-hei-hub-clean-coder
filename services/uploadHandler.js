@@ -96,4 +96,4 @@ const isSensitiveFile = (file) => {
 
 
 
-export { isFileCorrupted, hasLegalReason, isNotAuthorized, isSensitiveFile };
+export {handleUpload, isFileCorrupted, hasLegalReason, isNotAuthorized, isSensitiveFile };
