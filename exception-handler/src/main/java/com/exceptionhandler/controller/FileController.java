@@ -75,4 +75,10 @@ public class FileController {
     ) throws TimeoutException {
         return service.load(file);
     } 
+
+    @DeleteMapping("/delete-file")
+    public String deleteFile(@RequestParam(value = "search", required = false) String searchQuery) {
+        service.deleteFile(searchQuery);
+        return "Fichiers supprimés avec succès";
+    }
 }
