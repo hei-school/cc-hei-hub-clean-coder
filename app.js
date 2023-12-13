@@ -31,6 +31,7 @@ app.use(express.raw({
   limit: '10mb'
 }));
 
+
 const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
     const file = req.body;
@@ -51,10 +52,14 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
       throw new NotImplemented('Not implemented for this file');
     }
 
+    if (isRequestTimeout(file)) {
+      throw new RequestTimeout('Request timeout');
+    }
+
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileNotFound || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException || error instanceof NotAuthorized || error instanceof NotImplemented || error instanceof RequestTimeout) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
       console.error(error);

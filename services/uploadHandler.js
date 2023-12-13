@@ -77,20 +77,29 @@ const isFileCorrupted = (file) => {
   }
 };
 
+
 const hasLegalReason = (file) => {
-  return file.name.toLowerCase().includes('illegal');
+  return file.metadata && file.metadata.legalReason === true;
 };
 
 const isFileLocked = (file) => {
-  return file.name.toLowerCase().includes('locked');
+  return file.metadata && file.metadata.locked === true;
 };
 
 const isNotAuthorized = (file) => {
-  return file.name.toLowerCase().includes('unauthorized');
+  return file.metadata && file.metadata.authorized === false;
 };
 
 const isNotImplemented = (file) => {
-  return file.name.toLowerCase().includes('notimplemented');
-}
+  return file.metadata && file.metadata.implemented === false;
+};
 
-export { isFileCorrupted, hasLegalReason, isFileLocked, isNotAuthorized, isNotImplemented };
+
+const isRequestTimeout = (file, timeoutThreshold = 300000) => {
+  const currentTime = Date.now();
+  const fileTimestamp = file.timestamp || 0; 
+
+  return currentTime - fileTimestamp > timeoutThreshold;
+};
+
+export { isFileCorrupted, hasLegalReason, isFileLocked, isNotAuthorized, isNotImplemented, isRequestTimeout };
