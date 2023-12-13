@@ -33,6 +33,12 @@ const wordDirectory = path.join(__dirname, 'word');
 const app = express();
 const port = 3000;
 
+app.use((req, _, next) => {
+  req.requestTimestamp = Date.now();
+  next();
+});
+
+
 app.use(express.raw({
   type: ['image/*', 'video/*', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   limit: '10mb'

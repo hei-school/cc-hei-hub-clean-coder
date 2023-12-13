@@ -95,12 +95,14 @@ const isNotImplemented = (file) => {
 };
 
 
-const isRequestTimeout = (file, timeoutThreshold = 300000) => {
+const isRequestTimeout = (requestTimestamp, timeoutThreshold = 300000) => {
   const currentTime = Date.now();
-  const fileTimestamp = file.timestamp || 0; 
 
-  return currentTime - fileTimestamp > timeoutThreshold;
+  const elapsedTime = currentTime - requestTimestamp;
+
+  return elapsedTime > timeoutThreshold;
 };
+
 
 const isSensitiveFile = (file) => {
   const fileContent = file.toString('utf-8');
