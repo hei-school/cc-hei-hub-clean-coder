@@ -1,7 +1,6 @@
 package com.exceptionhandler.service;
 
 import com.exceptionhandler.exception.FileNotFoundException;
-import com.exceptionhandler.service.validator.SizeValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +17,6 @@ import java.util.stream.Stream;
 @Service
 @AllArgsConstructor
 public class FileService implements StorageFileInterface{
-    private final SizeValidator validator;
     private final Path rootLocation = Paths.get("uploads");
     @Override
     public String store(MultipartFile file) throws TimeoutException {
