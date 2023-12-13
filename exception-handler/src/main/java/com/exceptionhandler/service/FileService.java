@@ -1,5 +1,6 @@
 package com.exceptionhandler.service;
 
+import com.exceptionhandler.exception.BadFileTypeException;
 import com.exceptionhandler.exception.FileNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,14 @@ public class FileService implements StorageFileInterface{
 
     @Override
     public String getFileExtension(MultipartFile file) {
-        return null;
+        String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
+        String[] parts = originalFilename.split("\\.");
+        String extension = parts[parts.length - 1].toLowerCase();
+
+        if (parts.length > 2) {
+            throw new BadFileTypeException("Invalid extension");
+        }
+
+        return extension;
     }
 }
