@@ -13,11 +13,11 @@ import java.util.concurrent.TimeoutException;
 public class FileController {
     private final FileService service;
     
-    @PostMapping("/upload")
-    public String storeFile (
+    @PostMapping("/upload-document")
+    public String storeDocument (
             @RequestPart("file") MultipartFile file
             ) throws TimeoutException {
-        return service.store(file);
+        return service.storeDocument(file);
     }
 
     @GetMapping("/files")
