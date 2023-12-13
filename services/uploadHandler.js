@@ -9,6 +9,7 @@ import DuplicatedFile from '../exception/DuplicatedFile.js';
 import FilenameInvalid from '../exception/FilenameInvalid.js';
 import FileTooLarge from '../exception/FileTooLarge.js';
 import LegalReason from '../exception/LegalReason.js';
+import LockException from '../exception/LockException.js';
 
 export const handleUpload = async (file, directory) => {
   try {
@@ -45,10 +46,14 @@ export const handleUpload = async (file, directory) => {
       throw new LegalReason('File upload blocked for legal reasons');
     }
 
+    if (isFileLocked(file)) {
+      throw new LockException('File upload blocked due to a lock');
+    }
+
     await fs.writeFile(filePath, file);
     return filePath;
   } catch (error) {
-    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge || error instanceof LegalReason) {
+    if (error instanceof BadFileType || error instanceof CorruptedFile || error instanceof DuplicatedFile || error instanceof FilenameInvalid || error instanceof FileTooLarge || error instanceof LegalReason || error instanceof LockException) {
       throw error;
     } else {
       console.error(error);
@@ -75,3 +80,9 @@ const isFileCorrupted = (file) => {
 const hasLegalReason = (file) => {
   return file.name.toLowerCase().includes('illegal');
 };
+
+const isFileLocked = (file) => {
+  return file.name.toLowerCase().includes('locked');
+};
+
+export { isFileCorrupted, hasLegalReason, isFileLocked };

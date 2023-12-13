@@ -16,6 +16,6 @@ export const handleDownload = async (filename, directory) => {
     const filePath = path.join(directory, matchingFile);
     return filePath;
   } catch (error) {
-    throw error; 
+    throw error;
   }
 };
