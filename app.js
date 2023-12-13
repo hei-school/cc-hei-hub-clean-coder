@@ -22,6 +22,11 @@ app.use(express.raw({
 const handleExceptions = async (req, res, handlerFunction, directory) => {
   try {
     const file = req.body;
+    
+    if (!isValidFilename(file.name)) {
+      throw new FilenameInvalid('Invalid filename');
+    }
+
     const filePath = await handlerFunction(file, directory);
     res.status(200).json({ message: 'File uploaded successfully', filePath });
   } catch (error) {
@@ -33,6 +38,7 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
     }
   }
 };
+
 
 app.post('/upload/image', async (req, res) => {
   await handleExceptions(req, res, handleUpload, imageDirectory);
