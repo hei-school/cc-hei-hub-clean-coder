@@ -2,6 +2,7 @@ package com.exceptionhandler.service;
 
 import com.exceptionhandler.exception.BadFileTypeException;
 import com.exceptionhandler.exception.FileNotFoundException;
+import com.exceptionhandler.exception.NotAuthorizedException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,8 +66,19 @@ public class FileService implements StorageFileInterface{
 
     @Override
     public String getFileFormat(MultipartFile file) {
-        return null;
+        String contentType = file.getContentType();
+        assert contentType != null;
+        if (contentType.startsWith("image")) {
+            return "image";
+        } else if (contentType.startsWith("video")) {
+            return "video";
+        } else if (contentType.startsWith("application/pdf") || contentType.startsWith("text")) {
+            return "document";
+        } else {
+            throw new NotAuthorizedException("bad format of file");
+        }
     }
+
 
     @Override
     public String getFileExtension(MultipartFile file) {
