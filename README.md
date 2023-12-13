@@ -18,7 +18,7 @@ This is a simple Node.js application using the Express framework to handle file 
 
 3. Start the server:
    ```bash
-   npm start
+   node app.js
    ```
 
 The server will start running on port 3000.
@@ -44,10 +44,10 @@ The server will start running on port 3000.
 
 1. Perform a GET request to one of the following endpoints based on the file type you want to download:
 
-   - Image: `http://localhost:3000/download/image?filename=yourfilename.png`
-   - Video: `http://localhost:3000/download/video?filename=yourfilename.mp4`
-   - PDF: `http://localhost:3000/download/pdf?filename=yourfilename.pdf`
-   - Word: `http://localhost:3000/download/word?filename=yourfilename.docx`
+   - Image: `http://localhost:3000/download/image?filename=yourfilename`
+   - Video: `http://localhost:3000/download/video?filename=yourfilename`
+   - PDF: `http://localhost:3000/download/pdf?filename=yourfilename`
+   - Word: `http://localhost:3000/download/word?filename=yourfilename`
 
    Replace `yourfilename` with the actual name of the file you want to download.
 
