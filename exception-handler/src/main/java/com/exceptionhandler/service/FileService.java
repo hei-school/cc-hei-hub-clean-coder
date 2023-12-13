@@ -1,9 +1,6 @@
 package com.exceptionhandler.service;
 
-import com.exceptionhandler.exception.ApiException;
-import com.exceptionhandler.exception.BadFileTypeException;
-import com.exceptionhandler.exception.FileNotFoundException;
-import com.exceptionhandler.exception.NotAuthorizedException;
+import com.exceptionhandler.exception.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,9 +17,31 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-@AllArgsConstructor
 public class FileService implements StorageFileInterface{
+
     private final Path rootLocation = Paths.get("uploads");
+
+    public FileService() {
+        try {
+            if (!Files.exists(rootLocation)) {
+                Files.createDirectories(rootLocation);
+            }
+            Path documentLocation = rootLocation.resolve("document");
+            if (!Files.exists(documentLocation)) {
+                Files.createDirectories(documentLocation);
+            }
+            Path imgLocation = rootLocation.resolve("img");
+            if (!Files.exists(imgLocation)) {
+                Files.createDirectories(imgLocation);
+            }
+            Path videosLocation = rootLocation.resolve("videos");
+            if (!Files.exists(videosLocation)) {
+                Files.createDirectories(videosLocation);
+            }
+        } catch (IOException e) {
+            throw new InsufficientStorageException("Failed to create directories for file storage");
+        }
+    }
 
     @Override
     public String storeDocument(MultipartFile file) throws TimeoutException {
