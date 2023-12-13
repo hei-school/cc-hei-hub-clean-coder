@@ -18,7 +18,7 @@ This is a simple Node.js application using the Express framework to handle file 
 
 3. Start the server:
    ```bash
-   node app.js
+   npm start
    ```
 
 The server will start running on port 3000.
