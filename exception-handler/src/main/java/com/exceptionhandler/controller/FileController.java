@@ -43,4 +43,10 @@ public class FileController {
     ){
         return service.getFileFormat(file);
     }
+
+    @GetMapping("/file-extension")
+    public String getFormatFile(
+            @RequestPart("file") MultipartFile file
+    ){
+        return service.getFileExtension(file);
 }
