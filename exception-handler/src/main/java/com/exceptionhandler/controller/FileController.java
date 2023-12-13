@@ -24,4 +24,11 @@ public class FileController {
     public Stream<Path> loadAllFile(){
         return service.loadFile();
     }
+
+     @GetMapping("/load-file")
+    public Path loadFile(
+            @RequestPart("file") String file
+    ) throws TimeoutException {
+        return service.load(file);
+    }
 }
