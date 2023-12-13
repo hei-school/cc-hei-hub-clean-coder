@@ -20,34 +20,8 @@ public class FileController {
         return service.store(file);
     }
 
-     @GetMapping("/load")
+    @GetMapping("/files")
     public Stream<Path> loadAllFile(){
         return service.loadFile();
-    }
-
-    @DeleteMapping("/delete/file")
-    public String deleteFile(){
-        return service.deleteFile();
-    }
-
-    @GetMapping("/load/file")
-    public Path loadFile(
-            @RequestPart("file") String file
-    ) throws TimeoutException {
-        return service.load(file);
-    }
-
-    @GetMapping("/format")
-    public String getFormatFile(
-            @RequestPart("file") MultipartFile file
-    ){
-        return service.getFileFormat(file);
-    }
-
-    @GetMapping("/extension")
-    public String getFormatFile(
-            @RequestPart("file") MultipartFile file
-    ){
-        return service.getFileExtension(file);
     }
 }
