@@ -56,13 +56,16 @@ public class FileService implements StorageFileInterface{
                 Path documentDirectory = this.rootLocation.resolve("document");
                 Path destinationFile = documentDirectory.resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename()))).normalize().toAbsolutePath();
                 try (InputStream inputStream = file.getInputStream()) {
+                    if (Files.exists(destinationFile)) {
+                        throw new TooManyRequestException("document already exists");
+                    }
                     Files.createDirectories(documentDirectory);
                     Files.copy(inputStream, destinationFile);
                 }
                 return "Document stocké avec succès";
             }
         } catch (ApiException | IOException e) {
-            throw new NotAuthorizedException("Mauvais format de fichier, doit être un fichier de document");
+            throw new TooManyRequestException("document already exists");
         }
     }
 
@@ -79,13 +82,16 @@ public class FileService implements StorageFileInterface{
                 Path videoDirectory = this.rootLocation.resolve("videos");
                 Path destinationFile = videoDirectory.resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename()))).normalize().toAbsolutePath();
                 try (InputStream inputStream = file.getInputStream()) {
+                    if (Files.exists(destinationFile)) {
+                        throw new TooManyRequestException("video already exists");
+                    }
                     Files.createDirectories(videoDirectory);
                     Files.copy(inputStream, destinationFile);
                 }
                 return "Vidéo stockée avec succès";
             }
         } catch (ApiException | IOException e) {
-            throw new NotAuthorizedException("Mauvais format de fichier, doit être un fichier vidéo");
+            throw new TooManyRequestException("video already exists");
         }
     }
 
@@ -102,13 +108,16 @@ public class FileService implements StorageFileInterface{
                 Path imgDirectory = this.rootLocation.resolve("img");
                 Path destinationFile = imgDirectory.resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename()))).normalize().toAbsolutePath();
                 try (InputStream inputStream = file.getInputStream()) {
+                    if (Files.exists(destinationFile)) {
+                        throw new TooManyRequestException("image already exists");
+                    }
                     Files.createDirectories(imgDirectory);
                     Files.copy(inputStream, destinationFile);
                 }
                 return "Image stockée avec succès";
             }
         } catch (ApiException | IOException e) {
-            throw new NotAuthorizedException("Mauvais format de fichier, doit être un fichier image");
+            throw new TooManyRequestException("image already exists");
         }
     }
 
