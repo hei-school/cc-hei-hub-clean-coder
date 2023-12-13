@@ -1,4 +1,4 @@
-class StockageInsuffisantCloud extends Error {
+class StorageInsufficientCloud extends Error {
     constructor(message) {
       super(message);
       this.name = 'StockageInsuffisantCloud';
@@ -6,5 +6,5 @@ class StockageInsuffisantCloud extends Error {
     }
   }
   
-export default StockageInsuffisantCloud;
+export default StorageInsufficientCloud;
   

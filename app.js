@@ -20,8 +20,8 @@ import RequestTimeout from './exception/RequestTimeout.js';
 import SensitiveFile from './exception/SensitiveFile.js';
 import ServerDown from './exception/ServerDown.js';
 import ServerError from './exception/ServerError.js';
-import StockageInsuffisantCloud from './exception/StockageInsuffisantCloud.js'; // Ajout de la nouvelle exception
-import TooManyRequests from './exception/TooManyRequests.js'; // Ajout de la nouvelle exception
+import StockageInsuffisantCloud from './exception/StorageInsufficientCloud.js'; 
+import TooManyRequests from './exception/TooManyRequest.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,7 +70,7 @@ const isTooManyRequests = async () => {
 
     const recentRequests = requestTrackingData.recentRequests;
     const requestThreshold = 100; 
-    
+
     return recentRequests > requestThreshold;
   } catch (error) {
     console.error('Error checking recent requests:', error);
@@ -84,7 +84,6 @@ const handleExceptions = async (req, res, handlerFunction, directory) => {
       throw new ServerDown('The server is currently down');
     }
 
-    // Ajout de vérifications pour les nouvelles exceptions
     if (await isCloudStorageFull()) {
       throw new StockageInsuffisantCloud('Cloud storage is full');
     }
