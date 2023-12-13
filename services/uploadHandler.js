@@ -1,11 +1,12 @@
 import { fileTypeFromBuffer } from 'file-type/core';
 import path from 'path';
 import fs from 'fs/promises';
+import { isValidFilename } from '../utils/utils.js';
 
-import BadFileType from './exceptions/BadFileType.js';
-import CorruptedFile from './exceptions/CorruptedFile.js';
-import DuplicatedFile from './exceptions/DuplicatedFile.js';
-import FilenameInvalid from './exceptions/FilenameInvalid.js';
+import BadFileType from '../exception/BadFileType.js';
+import CorruptedFile from '../exception/CorruptedFile.js';
+import DuplicatedFile from '../exception/DuplicatedFile.js';
+import FilenameInvalid from '../exception/FilenameInvalid.js';
 
 export const handleUpload = async (file, directory) => {
   try {
@@ -65,8 +66,5 @@ const isFileCorrupted = (file) => {
   }
 };
 
-const isValidFilename = (filename) => {
-  const validFilenameRegex = /^[a-zA-Z0-9-_]+$/;
-  return validFilenameRegex.test(filename);
-};
+
 

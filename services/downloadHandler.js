@@ -1,14 +1,21 @@
 import path from 'path';
 import fs from 'fs/promises';
+import FileNotFound from '../exception/FileNotFound.js';
 
-export const handleDownload = async (filename,directory) => {
+export const handleDownload = async (filename, directory) => {
+  try {
     const files = await fs.readdir(directory);
     const matchingFile = files.find((file) =>
       path.parse(file).name === filename
     );
 
     if (!matchingFile) {
-      return res.status(404).send('File not found');
+      throw new FileNotFound('File not found');
     }
-    return path.join(directory, matchingFile);
-}
+
+    const filePath = path.join(directory, matchingFile);
+    return filePath;
+  } catch (error) {
+    throw error; 
+  }
+};
