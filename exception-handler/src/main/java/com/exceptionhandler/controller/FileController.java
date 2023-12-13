@@ -31,4 +31,9 @@ public class FileController {
     ) throws TimeoutException {
         return service.load(file);
     }
+
+    @DeleteMapping("/delete-file")
+    public String deleteFile(){
+        return service.deleteFile();
+    }
 }
