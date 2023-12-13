@@ -20,11 +20,15 @@ app.use(express.raw({type:['image/*','video/*','application/pdf','application/vn
 app.post('/upload/image', async (req, res) => {
   try {
     const image = req.body;
-    const filePath = await handleUpload(image,imageDirectory);
+    const filePath = await handleUpload(image, imageDirectory);
     res.status(200).json({ message: 'Image uploaded successfully', filePath });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    if (error instanceof BadFileType) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
 });
 
